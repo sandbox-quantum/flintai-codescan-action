@@ -5,10 +5,10 @@ branding:
   icon: alert-triangle
   color: yellow
 inputs:
-  flint_instance:
+  flintai_instance:
     description: URL of your FlintAI instance
     required: true
-  flint_token:
+  flintai_token:
     description: API key for your FlintAI instance
     required: true
 runs:
@@ -25,9 +25,9 @@ runs:
       # "ApiKey" scheme (not "Bearer").
       - name: Download Docker image
         env:
-          FLINT_INSTANCE: ${{ inputs.flint_instance }}
-          FLINT_TOKEN: ${{ inputs.flint_token }}
-        run: 'curl -s -L --output image.tar "$FLINT_INSTANCE/downloads/sensors/aispm_inventory_scanner/1.0.0" -H "Authorization: ApiKey $FLINT_TOKEN"'
+          FLINTAI_INSTANCE: ${{ inputs.flintai_instance }}
+          FLINTAI_TOKEN: ${{ inputs.flintai_token }}
+        run: 'curl -s -L --output image.tar "$FLINTAI_INSTANCE/downloads/sensors/aispm_inventory_scanner/1.0.0" -H "Authorization: ApiKey $FLINTAI_TOKEN"'
         shell: bash
 
       # Load image into the local docker cache
@@ -46,7 +46,7 @@ runs:
       # are mapped onto those env var names here.
       - name: Run AI SPM scanner container
         env:
-          FLINT_INSTANCE: ${{ inputs.flint_instance }}
-          FLINT_TOKEN: ${{ inputs.flint_token }}
-        run: docker run --rm -e "HOME" -e GITHUB_WORKSPACE="/github/workspace" -e GITHUB_WORKFLOW -e GITHUB_ACTION -e GITHUB_ACTOR -e GITHUB_EVENT_NAME -e GITHUB_REPOSITORY -e GITHUB_REF -e GITHUB_SHA -e AQG_TOKEN="$FLINT_TOKEN" -e AQG_INSTANCE="$FLINT_INSTANCE" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands" -v $GITHUB_WORKSPACE:"/github/workspace" aispm-action-test:latest
+          FLINTAI_INSTANCE: ${{ inputs.flintai_instance }}
+          FLINTAI_TOKEN: ${{ inputs.flintai_token }}
+        run: docker run --rm -e "HOME" -e GITHUB_WORKSPACE="/github/workspace" -e GITHUB_WORKFLOW -e GITHUB_ACTION -e GITHUB_ACTOR -e GITHUB_EVENT_NAME -e GITHUB_REPOSITORY -e GITHUB_REF -e GITHUB_SHA -e FLINTAI_TOKEN -e FLINTAI_INSTANCE -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands" -v $GITHUB_WORKSPACE:"/github/workspace" aispm-action-test:latest
         shell: bash
