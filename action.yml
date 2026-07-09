@@ -1,18 +1,18 @@
-name: FlintAI AI-SPM Inventory Scan
-description: Scans the repository contents for AI usage and reports findings back to FlintAI.
+name: Flint AI Inventory Scan
+description: Scans the repository contents for AI usage and reports findings back to Flint AI.
 author: SB Technology Inc.
 branding:
   icon: alert-triangle
   color: yellow
 inputs:
   flintai_instance:
-    description: URL of your FlintAI instance
+    description: 'URL of your Flint AI instance, e.g. https://app.flintai.dev (other environments: https://dev.flintai.dev, https://staging.flintai.dev).'
     required: true
   flintai_token:
-    description: API key for your FlintAI instance
+    description: API key for your Flint AI instance
     required: true
   llm_model:
-    description: 'LLM to use, in the form "<provider>:<model>" (e.g. "anthropic:claude-opus-4-8", "openai:gpt-4o", "gemini:gemini-1.5-pro").'
+    description: 'LLM to use, in the form "<provider>:<model>" (e.g. "anthropic:claude-opus-4-8", "openai:gpt-5", "gemini:gemini-2.5-pro").'
     required: true
   llm_api_key:
     description: API key for the LLM provider selected in `llm_model`. Store it in a GitHub secret.
@@ -25,7 +25,7 @@ runs:
       - name: Check out repository
         uses: actions/checkout@v5
 
-      # Download the scanner image as a tar, authenticating with the FlintAI API
+      # Download the scanner image as a tar, authenticating with the Flint AI API
       # key. The /downloads endpoint replies with a 303 redirect to a presigned
       # S3 URL, so -L is required to follow it. The API key must be sent with the
       # "ApiKey" scheme (not "Bearer").
@@ -48,14 +48,12 @@ runs:
 
       # The usual way would be doing this via "uses: docker://image:tag" but that doesn't work with local images
       # since GH Actions tries to pull them from the web. So we run it manually here.
-      # The scanner container reads AQG_TOKEN / AQG_INSTANCE, so the FlintAI inputs
-      # are mapped onto those env var names here.
       # The LLM API key must reach the container under the provider-native env
       # var name (ANTHROPIC_API_KEY / OPENAI_API_KEY / GOOGLE_API_KEY), which the
       # scanner's SDKs auto-discover. The user supplies a single generic
       # `llm_api_key`; we pick the right name from the provider prefix of
       # `llm_model` (the part before the ":").
-      - name: Run AI SPM scanner container
+      - name: Run Flint AI Inventory scanner container
         env:
           FLINTAI_INSTANCE: ${{ inputs.flintai_instance }}
           FLINTAI_TOKEN: ${{ inputs.flintai_token }}
