@@ -11,6 +11,12 @@ inputs:
   flintai_token:
     description: API key for your FlintAI instance
     required: true
+  llm_model:
+    description: 'LLM to use, in the form "<provider>:<model>" (e.g. "anthropic:claude-opus-4-8", "openai:gpt-4o", "gemini:gemini-1.5-pro").'
+    required: true
+  llm_api_key:
+    description: API key for the LLM provider selected in `llm_model`. Store it in a GitHub secret.
+    required: true
 runs:
   using: composite
   steps:
@@ -44,9 +50,27 @@ runs:
       # since GH Actions tries to pull them from the web. So we run it manually here.
       # The scanner container reads AQG_TOKEN / AQG_INSTANCE, so the FlintAI inputs
       # are mapped onto those env var names here.
+      # The LLM API key must reach the container under the provider-native env
+      # var name (ANTHROPIC_API_KEY / OPENAI_API_KEY / GOOGLE_API_KEY), which the
+      # scanner's SDKs auto-discover. The user supplies a single generic
+      # `llm_api_key`; we pick the right name from the provider prefix of
+      # `llm_model` (the part before the ":").
       - name: Run AI SPM scanner container
         env:
           FLINTAI_INSTANCE: ${{ inputs.flintai_instance }}
           FLINTAI_TOKEN: ${{ inputs.flintai_token }}
-        run: docker run --rm -e "HOME" -e GITHUB_WORKSPACE="/github/workspace" -e GITHUB_WORKFLOW -e GITHUB_ACTION -e GITHUB_ACTOR -e GITHUB_EVENT_NAME -e GITHUB_REPOSITORY -e GITHUB_REF -e GITHUB_SHA -e FLINTAI_TOKEN -e FLINTAI_INSTANCE -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands" -v $GITHUB_WORKSPACE:"/github/workspace" aispm-action-test:latest
+          LLM_MODEL: ${{ inputs.llm_model }}
+          LLM_API_KEY: ${{ inputs.llm_api_key }}
+        run: |
+          provider="${LLM_MODEL%%:*}"
+          case "$provider" in
+            anthropic)     key_env="ANTHROPIC_API_KEY" ;;
+            openai)        key_env="OPENAI_API_KEY" ;;
+            gemini|google) key_env="GOOGLE_API_KEY" ;;
+            *)
+              echo "::error::Unsupported LLM provider '$provider' in llm_model. Expected one of: anthropic, openai, gemini/google."
+              exit 1
+              ;;
+          esac
+          docker run --rm -e "HOME" -e GITHUB_WORKSPACE="/github/workspace" -e GITHUB_WORKFLOW -e GITHUB_ACTION -e GITHUB_ACTOR -e GITHUB_EVENT_NAME -e GITHUB_REPOSITORY -e GITHUB_REF -e GITHUB_SHA -e FLINTAI_TOKEN -e FLINTAI_INSTANCE -e LLM_MODEL -e "$key_env=$LLM_API_KEY" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands" -v $GITHUB_WORKSPACE:"/github/workspace" aispm-action-test:latest
         shell: bash
