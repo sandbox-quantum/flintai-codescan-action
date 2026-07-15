@@ -53,6 +53,9 @@ runs:
       # scanner's SDKs auto-discover. The user supplies a single generic
       # `llm_api_key`; we pick the right name from the provider prefix of
       # `llm_model` (the part before the ":").
+      # The scanner reads the instance URL and API key from AQG_INSTANCE /
+      # AQG_TOKEN, so we translate the action's FLINTAI_* inputs into those
+      # names when handing them to the container.
       - name: Run Flint AI Inventory scanner container
         env:
           FLINTAI_INSTANCE: ${{ inputs.flintai_instance }}
@@ -70,5 +73,5 @@ runs:
               exit 1
               ;;
           esac
-          docker run --rm -e "HOME" -e GITHUB_WORKSPACE="/github/workspace" -e GITHUB_WORKFLOW -e GITHUB_ACTION -e GITHUB_ACTOR -e GITHUB_EVENT_NAME -e GITHUB_REPOSITORY -e GITHUB_REF -e GITHUB_SHA -e FLINTAI_TOKEN -e FLINTAI_INSTANCE -e LLM_MODEL -e "$key_env=$LLM_API_KEY" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands" -v $GITHUB_WORKSPACE:"/github/workspace" aispm-action-test:latest
+          docker run --rm -e "HOME" -e GITHUB_WORKSPACE="/github/workspace" -e GITHUB_WORKFLOW -e GITHUB_ACTION -e GITHUB_ACTOR -e GITHUB_EVENT_NAME -e GITHUB_REPOSITORY -e GITHUB_REF -e GITHUB_SHA -e "AQG_INSTANCE=$FLINTAI_INSTANCE" -e "AQG_TOKEN=$FLINTAI_TOKEN" -e LLM_MODEL -e "$key_env=$LLM_API_KEY" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands" -v $GITHUB_WORKSPACE:"/github/workspace" aispm-action-test:latest
         shell: bash
