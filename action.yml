@@ -33,7 +33,7 @@ runs:
         env:
           FLINTAI_INSTANCE: ${{ inputs.flintai_instance }}
           FLINTAI_TOKEN: ${{ inputs.flintai_token }}
-        run: 'curl -s -L --output image.tar "$FLINTAI_INSTANCE/downloads/sensors/aispm_inventory_scanner/1.0.0" -H "Authorization: ApiKey $FLINTAI_TOKEN"'
+        run: 'curl -s -L --output image.tar "$FLINTAI_INSTANCE/downloads/sensors/aispm_inventory_scanner/beta" -H "Authorization: ApiKey $FLINTAI_TOKEN"'
         shell: bash
 
       # Load image into the local docker cache
