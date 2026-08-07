@@ -46,6 +46,18 @@ runs:
         run: docker tag bazel/services/aispm_inventory:latest aispm-action-test:latest
         shell: bash
 
+      # Log which source commit the scanner image was built from. The image
+      # carries the commit in the OCI label org.opencontainers.image.revision,
+      # baked in at build time from //build/stamp:git_sha.
+      - name: Log scanner image commit
+        run: |
+          revision="$(docker inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' aispm-action-test:latest 2>/dev/null || true)"
+          if [ -z "$revision" ] || [ "$revision" = "<no value>" ]; then
+            revision="unknown"
+          fi
+          echo "Flint AI scanner image built from commit: $revision"
+        shell: bash
+
       # The usual way would be doing this via "uses: docker://image:tag" but that doesn't work with local images
       # since GH Actions tries to pull them from the web. So we run it manually here.
       # The LLM API key must reach the container under the provider-native env
