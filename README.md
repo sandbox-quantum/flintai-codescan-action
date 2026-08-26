@@ -18,7 +18,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@master
       - name: Run Flint AI Inventory detection
-        uses: sandbox-quantum/aispm-inventory-action@main
+        uses: sandbox-quantum/flintai-codescan-action@main
         with:
           flintai_instance: https://app.flintai.dev
           flintai_token: ${{ secrets.FLINTAI_TOKEN }}
