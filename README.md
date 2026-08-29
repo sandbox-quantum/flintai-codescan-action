@@ -2,6 +2,8 @@
 
 A [GitHub Action](https://github.com/features/actions) for using [Flint AI](https://www.flintai.dev/). This action performs static analysis on your code to detect AI assets (such as models, agents, and MCP servers), creating an inventory. This inventory is then sent to your Flint AI instance, where it's enriched with additional information and analyzed for issues. You can view the results in the Flint AI web interface. Refer to the [Flint AI user guide](https://docs.flintai.dev/) for details.
 
+Scans appear in Flint AI under the **GitHub** data source. If you also scan GitLab projects with the [Flint AI Inventory Scan CI/CD component](https://gitlab.com/sandboxaq/flintai-codescan-workflow), those are reported separately, so the two inventories stay distinguishable.
+
 
 
 ## Configuration
